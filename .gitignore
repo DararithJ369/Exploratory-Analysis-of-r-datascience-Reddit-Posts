@@ -3,4 +3,5 @@ tests/
 .env
 .DS_Store
 __pycache__/
+img/
 dist/
