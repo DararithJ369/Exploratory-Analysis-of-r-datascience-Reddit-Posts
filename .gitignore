@@ -1,7 +1,7 @@
 node_modules/
+img/
 tests/
+dist/
+__pycache__/
 .env
 .DS_Store
-__pycache__/
-img/
-dist/
