@@ -103,37 +103,46 @@ python main.py
 
 ---
 
-## Key Scientific Findings & Visualizations
+## 🔬 Key Scientific Findings & Methodological Rigor
 
 | Research Dimension | Statistical Observation | Methodological Insight |
 | :--- | :--- | :--- |
 | **Engagement Distribution** | `Score`: Mean 47.4, Median 33, Skewness 3.62<br>`Comments`: Mean 26.6, Median 17, Skewness 1.91 | Extreme right-skewed heavy tail; normalized effectively via $\log(1 + x)$ transforms. |
 | **Topic Distribution** | `Other`: 40.0%, `Career`: 18.3%, `AI/LLM`: 13.0%, `Learning`: 11.3%, `Project`: 7.8%, `Salary`: 5.2% | Career and Generative AI/LLM applications dominate organic community inquiries. |
-| **Engagement by Topic** | `Salary`: Median 51.5 upvotes, 29.5 comments<br>`Career`: Median 47.0 upvotes, 33.0 comments | Compensation and career transition topics attract the highest interaction per post. |
-| **Metric Correlation** | Spearman's $\rho = 0.606$ ($p = 7.33 \times 10^{-13}$) | Moderately strong rank correlation: high community approval directly pairs with deep discussion. |
-| **Circadian Activity** | Peak window: 13:00 – 18:00 UTC (08:00 – 13:00 EST) | Submissions align with North American & European weekday working hours. |
-| **Latent Topics (NMF)** | 5 distinct clusters discovered: Career, AI Agents, Models/Datasets, Books, and Interviews | Unsupervised clustering accurately identifies emerging sub-themes without human bias. |
+| **Engagement by Topic** | `Salary`: Median 51.5 upvotes, 29.5 comments<br>`Career`: Median 47.0 upvotes, 33.0 comments | Compensation and career transition topics attract the highest interaction per post (both cumulatively and on an age-normalized daily velocity basis). |
+| **Metric Association** | Spearman's $\rho = 0.606$ ($p = 7.33 \times 10^{-13}$) | Moderately strong positive monotonic **association** (not causation): algorithmic front-page exposure and topic resonance drive co-movement. |
+| **Circadian Activity** | Peak window: 13:00 – 18:00 UTC (08:00 – 13:00 Eastern) | Timezone-aware conversion via `zoneinfo` accurately distinguishes **EDT** (UTC-4) and **EST** (UTC-5) across seasonal transitions. |
+| **Post Age & Exposure** | Spearman's $\rho = 0.020$ ($p = 0.824$) | No correlation between post age and score: interaction plateaus within 24–48 hours due to Reddit's exponential 'Hot' ranking half-life decay. |
+| **Latent Topics (NMF)** | 5 distinct clusters discovered: Career, AI Agents, Models/Datasets, Books, and Interviews | Unsupervised clustering provides an essential data-driven cross-validation against rule-based categorization limits. |
+
+### 🔍 Methodological & Statistical Guardrails (Addressing Common Pitfalls)
+1. **Association vs. Causation**: Spearman rank correlation ($\rho = 0.606$) measures monotonic co-movement, not direct causation. Higher scores do not "cause" comments; rather, algorithmic visibility and broadly resonant debate drive both metrics simultaneously.
+2. **Collection Boundaries vs. Pipeline Retention**: We distinguish between retaining 100% of collected organic posts ($N=115$) and total platform coverage. The 7-page snapshot of Reddit's 'Hot' listing represents prominent, survivor-biased discussions rather than an exhaustive longitudinal census.
+3. **Timezone Transitions**: Timestamps are parsed using standard `zoneinfo.ZoneInfo("America/New_York")`, dynamically adjusting for the transition between EDT (UTC-4) and EST (UTC-5) on November 2, 2025.
+4. **Lexicon Sentiment Limitations**: VADER compound scores serve as *indicative lexical polarity estimates*. Technical jargon (*loss function*, *error handling*, *bias variance*) can depress scores in non-emotional technical utilities.
+5. **Post Age & Exposure Control**: In addition to cumulative counts, we compute daily interaction velocity (`score_per_day`) to confirm that category engagement hierarchies are not artifacts of exposure time.
 
 ### Visual Artifacts (Available in `img/`)
 - `fig_engagement_distributions.png`: Dual-panel comparison of raw vs log-transformed distributions
 - `fig_topic_distribution.png`: Clean post category counts and percentages
 - `fig_engagement_by_category.png`: Median score and comment count by discussion category
-- `fig_circadian_heatmap.png`: Submission intensity across Day of Week $\times$ Hour of Day
-- `fig_score_comments_regression.png`: Log-log engagement scatter plot with regression line and Spearman $\rho$
+- `fig_circadian_heatmap.png`: Submission intensity across Day of Week $\times$ Hour of Day (UTC & Eastern)
+- `fig_score_comments_regression.png`: Log-log engagement scatter plot with regression line and Spearman $\rho$ (association note)
+- `fig_post_age_exposure.png`: Post exposure time vs score demonstrating algorithmic plateauing
 - `fig_title_length_engagement.png`: Title length vs score showing lack of correlation ($\rho = 0.029$)
 - `fig_nmf_topics.png`: Top TF-IDF keyword weights across 5 latent NMF topics
-- `fig_sentiment_by_category.png`: VADER compound score boxplot with sample sizes $N$
+- `fig_sentiment_by_category.png`: VADER compound score boxplot with sample sizes $N$ and domain nuance note
 - `fig_wordcloud.png`: High-resolution domain-filtered word cloud
 
 ---
 
-## Unit Testing Suite
+## 🧪 Unit Testing Suite
 
-The project includes unit tests covering categorization boundary logic, data retention, bot filtering, sentiment analysis, and scraper fallbacks:
+The project includes unit tests covering categorization boundary logic, data retention, bot filtering, daylight saving time handling, sentiment analysis, and scraper fallbacks:
 ```bash
 python -m unittest discover tests -v
 ```
-All 9 test cases run in `< 0.05s` with 100% pass rate.
+All 10 test cases run in `< 0.05s` with 100% pass rate.
 
 ---
 

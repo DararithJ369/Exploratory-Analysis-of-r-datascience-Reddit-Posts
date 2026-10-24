@@ -100,14 +100,28 @@ class TestDataCleaning(unittest.TestCase):
         self.assertNotIn("AutoModerator", cleaned["author"].values)
 
     def test_feature_engineering_transforms(self):
-        """Ensures log metrics and temporal features are computed."""
+        """Ensures log metrics, post age, and zoneinfo Eastern Time features are computed."""
         cleaned = clean_reddit_data(self.sample_df, remove_bots=True)
         self.assertIn("log_score", cleaned.columns)
         self.assertIn("log_comment_count", cleaned.columns)
-        self.assertIn("hour", cleaned.columns)
-        self.assertIn("day_of_week", cleaned.columns)
+        self.assertIn("hour_utc", cleaned.columns)
+        self.assertIn("hour_eastern", cleaned.columns)
+        self.assertIn("created_eastern", cleaned.columns)
+        self.assertIn("tz_eastern_name", cleaned.columns)
+        self.assertIn("post_age_days", cleaned.columns)
+        self.assertIn("score_per_day", cleaned.columns)
         self.assertFalse(cleaned["log_score"].isna().any())
         self.assertAlmostEqual(cleaned.loc[cleaned["post_id"] == "t3_001", "log_score"].values[0], np.log1p(10))
+
+    def test_daylight_saving_handling(self):
+        """Verifies zoneinfo correctly assigns EDT vs EST depending on date."""
+        df_dates = pd.DataFrame([
+            {"post_id": "p1", "post_title": "Summer post", "created_utc": "2025-08-15T12:00:00Z"},
+            {"post_id": "p2", "post_title": "Winter post", "created_utc": "2026-01-15T12:00:00Z"},
+        ])
+        cleaned = clean_reddit_data(df_dates, remove_bots=False)
+        self.assertEqual(cleaned.loc[cleaned["post_id"] == "p1", "tz_eastern_name"].values[0], "EDT")
+        self.assertEqual(cleaned.loc[cleaned["post_id"] == "p2", "tz_eastern_name"].values[0], "EST")
 
 
 class TestNLPAndTopicModeling(unittest.TestCase):
