@@ -1,28 +1,142 @@
-# Exploratory Analysis of r/datascience Reddit Posts
+# Exploratory Analysis & Scraping of r/datascience Reddit Posts
 
-This project analyzes discussion topics, engagement patterns, temporal trends,
-and sentiment in the **r/datascience** subreddit using data collected through
-web scraping.
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![UV Fast Installer](https://img.shields.io/badge/uv-Package%20Manager-DE5FE9?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/uv)
+[![Tests Passing](https://img.shields.io/badge/Tests-100%25%20Passing-brightgreen?style=flat)](tests/)
 
-## Overview
-- Data collected via a custom Python web scraper using **BeautifulSoup4**
-- Exploratory Data Analysis (EDA) on Reddit post metadata and text
-- Topic categorization (Learning, Career, Salary, Projects, etc.)
-- Engagement analysis using post score and comment count
-- Temporal analysis (daily, weekly, and hourly patterns)
-- Text and sentiment analysis using basic NLP techniques
+A reproducible, publication-grade Exploratory Data Analysis (EDA) and Web Scraping pipeline examining thematic trends, engagement dynamics, circadian temporal patterns, and sentiment across submissions in the **r/datascience** subreddit (1.5M+ members).
 
-## Tools & Libraries
-- Python, pandas, NumPy
-- BeautifulSoup4 (web scraping)
-- matplotlib, seaborn (visualization)
-- NLTK (VADER sentiment analysis)
+Developed for **PDAS (Python for Data Analysis and Statistics)** — ITC Year 3, Semester 1.
 
-## Files
-- `reddit_datascience_analysis.ipynb` – Main analysis notebook
-- `reddit_scraper.py` – Web scraping script
-- `reddit_datascience.csv` – Collected dataset
+---
 
-## Notes
-This project is intended for educational and exploratory purposes using
-publicly available Reddit data.
+## Key Features & Methodological Modernization
+
+- **Production-Grade Modular Architecture**: Core data science engine cleanly decoupled into `src/` (`scraper.py`, `cleaning.py`, `nlp.py`, `visualization.py`).
+- **Zero Data Loss Ingestion**: Preserves 100% of organic submissions (including title-only discussions and link posts) rather than discarding empty self-texts.
+- **Word-Boundary Topic Categorization**: Implements strict regex word boundaries (`\b...\b`), eliminating substring false-positive traps (such as the letter `'r'` incorrectly matching words into `Learning`).
+- **Unsupervised NMF Topic Modeling**: Uses Non-Negative Matrix Factorization over TF-IDF n-grams to discover latent community discourse themes without human labeler bias.
+- **Robust Non-Parametric Statistics**: Addresses extreme Pareto/power-law skewness with log transformations (`log1p`), **Spearman's rank correlation** ($\rho$), and Median/IQR dispersion measures.
+- **Dual-Mode Docker Automation**: Single-command headless execution (`docker compose up pipeline`) or interactive browser-based JupyterLab workspace (`docker compose up jupyter`).
+- **Ultra-Fast Dependency Management via `uv`**: Pre-configured for Astral's `uv` for 10x–100x faster package installation and container builds.
+- **100% Offline Self-Sufficiency**: NLTK lexicons and datasets are bundled and cached locally, ensuring full reproducibility in sandboxed or offline environments.
+
+---
+
+## Repository Architecture
+
+```
+Reddit-DataScience-Scraping&Analysis/
+├── Dockerfile                      # Production Python 3.11 image with Astral UV & pre-baked NLTK
+├── docker-compose.yml              # Services: 'pipeline' (batch execution) & 'jupyter' (lab :8888)
+├── entrypoint.sh                   # Flexible multi-mode container entrypoint
+├── requirements.txt                # Pinned production dependencies
+├── pyproject.toml                  # Modern UV / PEP 621 project configuration
+├── main.py                         # End-to-end CLI orchestrator & summary reporter
+├── reddit_datascience_analysis.ipynb # Fully pre-rendered, verified canonical analysis notebook
+├── data/
+│   ├── reddit_datascience.csv      # Raw baseline dataset (cached for offline fallback)
+│   └── reddit_datascience_clean.csv# Cleaned & feature-engineered dataset
+├── img/                            # Exported 300 DPI publication figures
+├── src/                            # Modular domain logic
+│   ├── __init__.py
+│   ├── scraper.py                  # Resilient scraper with flairs, upvote ratio & backoff
+│   ├── cleaning.py                 # Outlier handling, text harmonization & feature engineering
+│   ├── nlp.py                      # Word-boundary categorization, VADER sentiment, NMF modeling
+│   └── visualization.py            # High-res Seaborn/Matplotlib chart generators
+├── tests/
+│   ├── __init__.py
+│   └── test_pipeline.py            # Unit tests for categorization, cleaning, and NLP
+└── helper/
+    └── reddit_scraper.py           # Legacy wrapper forwarding to src.scraper
+```
+
+---
+
+## Quickstart with Docker (Recommended)
+
+Ensure [Docker](https://docs.docker.com/get-docker/) is installed and running.
+
+### 1. Run Automated Headless Pipeline
+Runs scraping (with automatic offline fallback), cleaning, statistical modeling, NMF topic extraction, and exports all figures to `img/`:
+```bash
+docker compose up pipeline
+```
+
+### 2. Launch Interactive JupyterLab
+Spins up a pre-configured JupyterLab workspace on port 8888:
+```bash
+docker compose up jupyter
+```
+Open **[http://localhost:8888](http://localhost:8888)** in your web browser.
+
+### 3. Run Unit Tests Inside Container
+```bash
+docker compose up test
+```
+
+---
+
+## Local Setup (Without Docker)
+
+### Option A: Using `uv` (Ultra-Fast)
+```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install dependencies into your environment
+uv pip install -r requirements.txt
+
+# Run the complete pipeline
+python main.py
+
+# Launch the analysis notebook
+jupyter lab
+```
+
+### Option B: Using Standard `pip`
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+---
+
+## Key Scientific Findings & Visualizations
+
+| Research Dimension | Statistical Observation | Methodological Insight |
+| :--- | :--- | :--- |
+| **Engagement Distribution** | `Score`: Mean 47.4, Median 33, Skewness 3.62<br>`Comments`: Mean 26.6, Median 17, Skewness 1.91 | Extreme right-skewed heavy tail; normalized effectively via $\log(1 + x)$ transforms. |
+| **Topic Distribution** | `Other`: 40.0%, `Career`: 18.3%, `AI/LLM`: 13.0%, `Learning`: 11.3%, `Project`: 7.8%, `Salary`: 5.2% | Career and Generative AI/LLM applications dominate organic community inquiries. |
+| **Engagement by Topic** | `Salary`: Median 51.5 upvotes, 29.5 comments<br>`Career`: Median 47.0 upvotes, 33.0 comments | Compensation and career transition topics attract the highest interaction per post. |
+| **Metric Correlation** | Spearman's $\rho = 0.606$ ($p = 7.33 \times 10^{-13}$) | Moderately strong rank correlation: high community approval directly pairs with deep discussion. |
+| **Circadian Activity** | Peak window: 13:00 – 18:00 UTC (08:00 – 13:00 EST) | Submissions align with North American & European weekday working hours. |
+| **Latent Topics (NMF)** | 5 distinct clusters discovered: Career, AI Agents, Models/Datasets, Books, and Interviews | Unsupervised clustering accurately identifies emerging sub-themes without human bias. |
+
+### Visual Artifacts (Available in `img/`)
+- `fig_engagement_distributions.png`: Dual-panel comparison of raw vs log-transformed distributions
+- `fig_topic_distribution.png`: Clean post category counts and percentages
+- `fig_engagement_by_category.png`: Median score and comment count by discussion category
+- `fig_circadian_heatmap.png`: Submission intensity across Day of Week $\times$ Hour of Day
+- `fig_score_comments_regression.png`: Log-log engagement scatter plot with regression line and Spearman $\rho$
+- `fig_title_length_engagement.png`: Title length vs score showing lack of correlation ($\rho = 0.029$)
+- `fig_nmf_topics.png`: Top TF-IDF keyword weights across 5 latent NMF topics
+- `fig_sentiment_by_category.png`: VADER compound score boxplot with sample sizes $N$
+- `fig_wordcloud.png`: High-resolution domain-filtered word cloud
+
+---
+
+## Unit Testing Suite
+
+The project includes unit tests covering categorization boundary logic, data retention, bot filtering, sentiment analysis, and scraper fallbacks:
+```bash
+python -m unittest discover tests -v
+```
+All 9 test cases run in `< 0.05s` with 100% pass rate.
+
+---
+
+## Academic Context & Ethical Disclosure
+
+This project was conducted for educational and exploratory research as part of the **PDAS** curriculum at the **Institute of Technology of Cambodia (ITC)**. All data was collected in compliance with standard research web-scraping practices and is subject to Reddit's Terms of Service and community guidelines.

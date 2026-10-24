@@ -1,0 +1,27 @@
+# Reddit Data Science Scraping & Analysis Dependencies
+# Install fast with uv: uv pip install -r requirements.txt
+
+# Core Data Manipulation & Math
+pandas>=2.1.0
+numpy>=1.26.0
+scipy>=1.11.0
+scikit-learn>=1.3.0
+
+# Visualization & Styling
+matplotlib>=3.8.0
+seaborn>=0.13.0
+wordcloud>=1.9.0
+
+# Natural Language Processing
+nltk>=3.8.1
+
+# Web Scraping & HTTP
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+
+# Interactive Notebook Environment & Automation
+jupyterlab>=4.0.0
+ipykernel>=6.25.0
+nbconvert>=7.10.0
+ipywidgets>=8.1.0
+

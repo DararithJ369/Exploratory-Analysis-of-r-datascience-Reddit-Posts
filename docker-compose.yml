@@ -1,0 +1,39 @@
+services:
+  # Automated batch pipeline service (runs scraping, cleaning, stats, nmf, and exports figures to img/)
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["pipeline"]
+    volumes:
+      - .:/workspace
+    environment:
+      - MPLCONFIGDIR=/tmp/matplotlib
+      - NLTK_DATA=/workspace/data/nltk_data
+    restart: "no"
+
+  # Interactive JupyterLab service accessible on http://localhost:8888
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["jupyter"]
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/workspace
+    environment:
+      - MPLCONFIGDIR=/tmp/matplotlib
+      - NLTK_DATA=/workspace/data/nltk_data
+    restart: unless-stopped
+
+  # Unit test runner service
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["test"]
+    volumes:
+      - .:/workspace
+    restart: "no"
+

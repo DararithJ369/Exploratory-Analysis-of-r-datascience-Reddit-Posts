@@ -1,0 +1,26 @@
+[project]
+name = "reddit-datascience-analysis"
+version = "0.2.0"
+description = "Modern Exploratory Data Analysis & Scraping of r/datascience Reddit Posts"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.1.0",
+    "numpy>=1.26.0",
+    "scipy>=1.11.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+    "wordcloud>=1.9.0",
+    "nltk>=3.8.1",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "jupyterlab>=4.0.0",
+    "ipykernel>=6.25.0",
+    "nbconvert>=7.10.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+

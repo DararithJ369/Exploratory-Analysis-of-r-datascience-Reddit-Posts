@@ -1,7 +1,19 @@
-node_modules/
-img/
-tests/
-dist/
+# Environments & Bytecode
 __pycache__/
-.env
+*.py[cod]
+*$py.class
+.venv/
+.bin/
+venv/
+env/
+
+# Data caches & large downloads
+data/nltk_data/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS & Environment
 .DS_Store
+.env
+dist/
+node_modules/
