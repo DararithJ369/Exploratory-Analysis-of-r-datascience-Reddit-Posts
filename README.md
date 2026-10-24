@@ -103,7 +103,7 @@ python main.py
 
 ---
 
-## 🔬 Key Scientific Findings & Methodological Rigor
+## Key Scientific Findings & Methodological Rigor
 
 | Research Dimension | Statistical Observation | Methodological Insight |
 | :--- | :--- | :--- |
@@ -115,7 +115,7 @@ python main.py
 | **Post Age & Exposure** | Spearman's $\rho = 0.020$ ($p = 0.824$) | No correlation between post age and score: interaction plateaus within 24–48 hours due to Reddit's exponential 'Hot' ranking half-life decay. |
 | **Latent Topics (NMF)** | 5 distinct clusters discovered: Career, AI Agents, Models/Datasets, Books, and Interviews | Unsupervised clustering provides an essential data-driven cross-validation against rule-based categorization limits. |
 
-### 🔍 Methodological & Statistical Guardrails (Addressing Common Pitfalls)
+### Methodological & Statistical Guardrails (Addressing Common Pitfalls)
 1. **Association vs. Causation**: Spearman rank correlation ($\rho = 0.606$) measures monotonic co-movement, not direct causation. Higher scores do not "cause" comments; rather, algorithmic visibility and broadly resonant debate drive both metrics simultaneously.
 2. **Collection Boundaries vs. Pipeline Retention**: We distinguish between retaining 100% of collected organic posts ($N=115$) and total platform coverage. The 7-page snapshot of Reddit's 'Hot' listing represents prominent, survivor-biased discussions rather than an exhaustive longitudinal census.
 3. **Timezone Transitions**: Timestamps are parsed using standard `zoneinfo.ZoneInfo("America/New_York")`, dynamically adjusting for the transition between EDT (UTC-4) and EST (UTC-5) on November 2, 2025.
@@ -136,7 +136,7 @@ python main.py
 
 ---
 
-## 🧪 Unit Testing Suite
+## Unit Testing Suite
 
 The project includes unit tests covering categorization boundary logic, data retention, bot filtering, daylight saving time handling, sentiment analysis, and scraper fallbacks:
 ```bash
