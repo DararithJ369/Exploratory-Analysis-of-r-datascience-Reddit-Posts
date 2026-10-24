@@ -1,0 +1,9 @@
+.git
+.venv
+venv
+.bin
+data/nltk_data
+__pycache__
+*.pyc
+.DS_Store
+.ipynb_checkpoints

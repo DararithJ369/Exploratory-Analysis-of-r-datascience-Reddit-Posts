@@ -44,7 +44,7 @@ def run_pipeline(
 ) -> pd.DataFrame:
     """Executes the complete end-to-end data science pipeline."""
     print("=" * 70)
-    print("🚀 STARTING REDDIT DATA SCIENCE ANALYSIS PIPELINE")
+    print("STARTING REDDIT DATA SCIENCE ANALYSIS PIPELINE")
     print("=" * 70)
 
     # 1. Data Ingestion
@@ -57,13 +57,13 @@ def run_pipeline(
             raise FileNotFoundError(f"Input file not found: {input_csv}")
         df_raw = pd.read_csv(input_csv)
 
-    print(f"\n📊 Raw Dataset Ingested: {len(df_raw)} rows, {len(df_raw.columns)} columns")
+    print(f"\nRaw Dataset Ingested: {len(df_raw)} rows, {len(df_raw.columns)} columns")
 
     # 2. Cleaning & Feature Engineering
     logger.info("Step 2/6: Cleaning data and engineering features (preserving title-only posts)...")
     df_clean = clean_reddit_data(df_raw, remove_bots=True)
     retention_rate = (len(df_clean) / max(len(df_raw), 1)) * 100
-    print(f"✅ Organic Post Retention: {len(df_clean)} posts retained ({retention_rate:.1f}%)")
+    print(f"Organic Post Retention: {len(df_clean)} posts retained ({retention_rate:.1f}%)")
 
     # 3. Topic Categorization
     logger.info("Step 3/6: Categorizing posts via word-bounded regex patterns...")
@@ -84,7 +84,7 @@ def run_pipeline(
 
     # Statistical Overview
     print("\n" + "=" * 70)
-    print("📈 STATISTICAL SUMMARY & INSIGHTS")
+    print("STATISTICAL SUMMARY & INSIGHTS")
     print("=" * 70)
 
     print("\n[Topic Category Breakdown]")
@@ -113,13 +113,13 @@ def run_pipeline(
     # 7. Generate Visualizations
     if export_images:
         print("\n" + "=" * 70)
-        print("🎨 EXPORTING PUBLICATION VISUALIZATIONS TO img/")
+        print("EXPORTING PUBLICATION VISUALIZATIONS TO img/")
         print("=" * 70)
         generate_all_visualizations(df_sent, topics, output_dir=img_dir)
-        print(f"✅ All figures successfully exported to '{img_dir}/'")
+        print(f"All figures successfully exported to '{img_dir}/'")
 
     print("\n" + "=" * 70)
-    print("🎉 PIPELINE EXECUTION COMPLETED SUCCESSFULLY!")
+    print("PIPELINE EXECUTION COMPLETED SUCCESSFULLY")
     print("=" * 70)
     return df_sent
 

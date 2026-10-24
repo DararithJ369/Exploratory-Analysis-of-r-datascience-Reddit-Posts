@@ -15,14 +15,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     NLTK_DATA=/workspace/data/nltk_data \
     UV_SYSTEM_PYTHON=1
 
-# Install essential system utilities
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    ca-certificates \
-    bash \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
 # Copy uv and uvx binaries from installer stage
 COPY --from=uv_installer /uv /uvx /bin/
 
@@ -51,4 +43,3 @@ EXPOSE 8888
 # Set entrypoint and default command
 ENTRYPOINT ["/workspace/entrypoint.sh"]
 CMD ["pipeline"]
-
