@@ -17,3 +17,5 @@ data/nltk_data/
 .env
 dist/
 node_modules/
+GEMINI.md
+
