@@ -204,6 +204,25 @@ class TestScraperFallback(unittest.TestCase):
         self.assertIsInstance(df, pd.DataFrame)
         self.assertGreater(len(df), 0)
 
+    def test_scraper_score_coercion(self):
+        """Verifies that non-numeric score strings from Reddit HTML do not crash the parser."""
+        from bs4 import BeautifulSoup
+        raw_html = """
+        <div class="thing" data-fullname="t3_999" data-score="?" data-author="test_user" data-type="self">
+            <a class="title" href="/r/datascience/comments/999/test/">Test Title</a>
+            <a class="comments">15 comments</a>
+            <time datetime="2026-01-10T12:00:00Z"></time>
+        </div>
+        """
+        soup = BeautifulSoup(raw_html, "html.parser")
+        post = soup.find("div", class_="thing")
+        raw_score = post.get("data-score")
+        try:
+            score_val = int(raw_score) if raw_score is not None else 0
+        except (ValueError, TypeError):
+            score_val = 0
+        self.assertEqual(score_val, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

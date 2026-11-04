@@ -108,11 +108,18 @@ def scrape_listing(
             domain = post.get("data-domain", "")
             is_self = post.get("data-type") == "self" or domain.startswith("self.")
 
+            # Extract score safely (guard against non-numeric scores like '?' or None)
+            raw_score = post.get("data-score")
+            try:
+                score_val = int(raw_score) if raw_score is not None else 0
+            except (ValueError, TypeError):
+                score_val = 0
+
             posts.append({
                 "post_id": post.get("data-fullname"),
                 "post_title": title_tag.text.strip(),
                 "author": post.get("data-author"),
-                "score": int(post.get("data-score") or 0),
+                "score": score_val,
                 "comment_count": comment_count,
                 "created_utc": created_utc,
                 "url": post_url,
