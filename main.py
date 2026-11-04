@@ -78,7 +78,9 @@ def run_pipeline(
     nmf_model, tfidf_vec, topics = fit_nmf_topic_model(df_sent["full_text"].tolist(), n_topics=5)
 
     # 6. Save Cleaned Dataset
-    os.makedirs(os.path.dirname(output_clean_csv), exist_ok=True)
+    out_dir = os.path.dirname(output_clean_csv)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     df_sent.to_csv(output_clean_csv, index=False)
     logger.info("Saved cleaned & enriched dataset to %s", output_clean_csv)
 

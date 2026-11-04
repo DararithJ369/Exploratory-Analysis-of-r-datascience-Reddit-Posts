@@ -211,7 +211,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     data = scrape_reddit_dataset(pages=args.pages, fallback_csv=args.output)
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    out_dir = os.path.dirname(args.output)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     data.to_csv(args.output, index=False)
     print(f"Data saved to {args.output} ({len(data)} rows)")
 

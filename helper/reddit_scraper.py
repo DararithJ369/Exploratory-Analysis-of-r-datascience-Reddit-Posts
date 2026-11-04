@@ -24,7 +24,9 @@ def main():
     args = parser.parse_args()
 
     df = scrape_reddit_full(pages=args.pages, fallback_csv=args.output)
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    out_dir = os.path.dirname(args.output)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     df.to_csv(args.output, index=False)
     print(f"Saved {len(df)} rows to {args.output}")
 

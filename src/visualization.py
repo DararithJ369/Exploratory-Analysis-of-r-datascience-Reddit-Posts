@@ -35,7 +35,9 @@ sns.set_theme(style="whitegrid", font_scale=1.1)
 
 def save_current_figure(output_path: str, dpi: int = 300):
     """Saves the active matplotlib figure and cleanly closes it."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    out_dir = os.path.dirname(output_path)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     plt.tight_layout()
     plt.savefig(output_path, dpi=dpi, bbox_inches="tight")
     plt.close()
