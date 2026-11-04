@@ -1,5 +1,6 @@
 # Exploratory Analysis & Scraping of r/datascience Reddit Posts
 
+[![CI](https://github.com/DararithJ369/Exploratory-Analysis-of-r-datascience-Reddit-Posts/actions/workflows/ci.yml/badge.svg)](https://github.com/DararithJ369/Exploratory-Analysis-of-r-datascience-Reddit-Posts/actions)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 [![UV Fast Installer](https://img.shields.io/badge/uv-Package%20Manager-DE5FE9?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/uv)
@@ -28,9 +29,13 @@ Developed for **PDAS (Python for Data Analysis and Statistics)** — ITC Year 3,
 
 ```
 Reddit-DataScience-Scraping&Analysis/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                  # GitHub Actions automated test & validation workflow
 ├── Dockerfile                      # Production Python 3.11 image with Astral UV & pre-baked NLTK
 ├── docker-compose.yml              # Services: 'pipeline' (batch execution), 'jupyter' & 'test'
 ├── entrypoint.sh                   # Flexible multi-mode container entrypoint
+├── Makefile                        # Convenience targets for execution, test, and container workflows
 ├── .dockerignore                   # Build context exclusions (.venv, .git, caches)
 ├── requirements.txt                # Pinned production dependencies
 ├── pyproject.toml                  # Modern UV / PEP 621 project configuration
@@ -100,6 +105,15 @@ jupyter lab
 ```bash
 pip install -r requirements.txt
 python main.py
+```
+
+### Option C: Using `make` Automation
+```bash
+make install         # Install dependencies via uv or pip
+make test            # Execute unit test suite
+make run-cached      # Run pipeline using cached baseline dataset
+make jupyter         # Start local JupyterLab workspace
+make clean           # Remove temporary cache artifacts
 ```
 
 ---
