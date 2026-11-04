@@ -48,6 +48,12 @@ class TestCategorization(unittest.TestCase):
         self.assertEqual(categorize_title("Random question", flair="Career"), "Career")
         self.assertEqual(categorize_title("My new tool", flair="Projects/Tooling"), "Project")
 
+    def test_case_insensitivity_and_punctuation(self):
+        """Verifies category matching with uppercase and surrounding punctuation."""
+        self.assertEqual(categorize_title("Is this a good SALARY?"), "Salary")
+        self.assertEqual(categorize_title("Career... what should I do next?"), "Career")
+        self.assertEqual(categorize_title("Building an AGENT for data workflows!"), "AI/LLM")
+
 
 class TestDataCleaning(unittest.TestCase):
     """Test data cleaning and feature engineering."""
@@ -123,6 +129,35 @@ class TestDataCleaning(unittest.TestCase):
         self.assertEqual(cleaned.loc[cleaned["post_id"] == "p1", "tz_eastern_name"].values[0], "EDT")
         self.assertEqual(cleaned.loc[cleaned["post_id"] == "p2", "tz_eastern_name"].values[0], "EST")
 
+    def test_negative_scores_numerical_stability(self):
+        """Verifies that negative or zero engagement values do not produce NaNs or infs."""
+        df_neg = pd.DataFrame([
+            {"post_id": "neg1", "post_title": "Downvoted post", "score": -5, "comment_count": 0, "created_utc": "2026-01-10T12:00:00Z"},
+            {"post_id": "zero1", "post_title": "Zero post", "score": 0, "comment_count": 0, "created_utc": "2026-01-10T12:00:00Z"},
+        ])
+        cleaned = clean_reddit_data(df_neg, remove_bots=False)
+        self.assertFalse(cleaned["log_score"].isna().any())
+        self.assertFalse(cleaned["log_score_per_day"].isna().any())
+        self.assertGreaterEqual(cleaned["log_score"].min(), 0.0)
+        self.assertGreaterEqual(cleaned["log_score_per_day"].min(), 0.0)
+
+    def test_velocity_clamp_on_fresh_posts(self):
+        """Verifies safe denominator clamp prevents runaway engagement velocity."""
+        ref_time = pd.Timestamp("2026-01-10T12:05:00Z")
+        df_fresh = pd.DataFrame([
+            {
+                "post_id": "fresh1",
+                "post_title": "Posted 5 minutes ago",
+                "score": 10,
+                "comment_count": 5,
+                "created_utc": "2026-01-10T12:00:00Z",
+            }
+        ])
+        cleaned = clean_reddit_data(df_fresh, remove_bots=False, collection_time=ref_time)
+        self.assertLess(cleaned["post_age_days"].values[0], 0.01)
+        # Denominator clamped to minimum 0.25 days -> velocity should be 10 / 0.25 = 40
+        self.assertAlmostEqual(cleaned["score_per_day"].values[0], 40.0)
+
 
 class TestNLPAndTopicModeling(unittest.TestCase):
     """Test NLP sentiment analysis and NMF modeling."""
@@ -136,6 +171,17 @@ class TestNLPAndTopicModeling(unittest.TestCase):
         self.assertIn("sentiment_compound", scored.columns)
         self.assertGreater(scored.loc[0, "sentiment_compound"], 0.2)
         self.assertLess(scored.loc[1, "sentiment_compound"], -0.2)
+
+    def test_empty_and_whitespace_sentiment(self):
+        """Verifies neutral polarity for empty or whitespace-only documents."""
+        df_empty = pd.DataFrame([
+            {"post_title": "", "full_text": ""},
+            {"post_title": "   ", "full_text": "   "},
+        ])
+        scored = compute_sentiment(df_empty)
+        self.assertEqual(scored.loc[0, "sentiment_compound"], 0.0)
+        self.assertEqual(scored.loc[1, "sentiment_compound"], 0.0)
+        self.assertEqual(scored.loc[0, "sentiment_label"], "Neutral")
 
     def test_nmf_topic_modeling(self):
         corpus = [

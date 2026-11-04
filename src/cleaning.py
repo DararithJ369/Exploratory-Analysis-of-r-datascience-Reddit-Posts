@@ -118,8 +118,8 @@ def clean_reddit_data(
         safe_age = np.maximum(df["post_age_days"], 0.25)
         df["score_per_day"] = df["score"] / safe_age
         df["comments_per_day"] = df["comment_count"] / safe_age
-        df["log_score_per_day"] = np.log1p(df["score_per_day"])
-        df["log_comments_per_day"] = np.log1p(df["comments_per_day"])
+        df["log_score_per_day"] = np.log1p(np.maximum(df["score_per_day"], 0))
+        df["log_comments_per_day"] = np.log1p(np.maximum(df["comments_per_day"], 0))
 
     # 8. Text length features
     df["title_char_length"] = df["post_title"].str.len()
