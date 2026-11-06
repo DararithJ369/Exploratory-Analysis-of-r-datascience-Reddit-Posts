@@ -1,12 +1,17 @@
 services:
   # Automated batch pipeline service (runs scraping, cleaning, stats, nmf, and exports figures to img/)
   pipeline:
+    image: reddit-datascience:latest
+    container_name: reddit_pipeline
     build:
       context: .
       dockerfile: Dockerfile
     command: ["pipeline"]
+    tty: true
+    stdin_open: true
     volumes:
       - .:/workspace
+      - /workspace/data/nltk_data
     environment:
       - MPLCONFIGDIR=/tmp/matplotlib
       - NLTK_DATA=/workspace/data/nltk_data
@@ -14,26 +19,44 @@ services:
 
   # Interactive JupyterLab service accessible on http://localhost:8888
   jupyter:
+    image: reddit-datascience:latest
+    container_name: reddit_jupyter
     build:
       context: .
       dockerfile: Dockerfile
     command: ["jupyter"]
+    tty: true
+    stdin_open: true
     ports:
       - "8888:8888"
     volumes:
       - .:/workspace
+      - /workspace/data/nltk_data
     environment:
       - MPLCONFIGDIR=/tmp/matplotlib
       - NLTK_DATA=/workspace/data/nltk_data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8888/api\")' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   # Unit test runner service
   test:
+    image: reddit-datascience:latest
+    container_name: reddit_test
     build:
       context: .
       dockerfile: Dockerfile
     command: ["test"]
+    tty: true
+    stdin_open: true
     volumes:
       - .:/workspace
+      - /workspace/data/nltk_data
+    environment:
+      - MPLCONFIGDIR=/tmp/matplotlib
+      - NLTK_DATA=/workspace/data/nltk_data
     restart: "no"
-
