@@ -19,7 +19,7 @@ Developed for **PDAS (Python for Data Analysis and Statistics)** — ITC Year 3,
 - **Word-Boundary Topic Categorization**: Implements strict regex word boundaries (`\b...\b`), eliminating substring false-positive traps (such as the letter `'r'` incorrectly matching words into `Learning`).
 - **Unsupervised NMF Topic Modeling**: Uses Non-Negative Matrix Factorization over TF-IDF n-grams to discover latent community discourse themes without human labeler bias.
 - **Robust Non-Parametric Statistics**: Addresses extreme Pareto/power-law skewness with log transformations (`log1p`), **Spearman's rank correlation** ($\rho$), and Median/IQR dispersion measures.
-- **Dual-Mode Docker Automation**: Single-command headless execution (`docker compose up pipeline`) or interactive browser-based JupyterLab workspace (`docker compose up jupyter`).
+- **Dual-Mode Docker Automation**: Single-command headless execution (`docker compose up pipeline`) or interactive browser-based JupyterLab workspace (`docker compose up jupyter`), equipped with deterministic container naming, healthchecks, and volume isolation for pre-baked NLTK corpora.
 - **Ultra-Fast Dependency Management via `uv`**: Pre-configured for Astral's `uv` for 10x–100x faster package installation and container builds.
 - **100% Offline Self-Sufficiency**: NLTK lexicons and datasets are bundled and cached locally, ensuring full reproducibility in sandboxed or offline environments.
 
