@@ -20,13 +20,13 @@
 ## 4. Topic Category Breakdown & Engagement Medians
 | Category | N | Share (%) | Median Score | Median Comments | Positive Sentiment (%) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **AI/LLM** | 15 | 13.0% | 36 | 15 | 73.3% |
-| **Advice** | 5 | 4.3% | 22 | 22 | 40.0% |
-| **Career** | 21 | 18.3% | 47 | 33 | 61.9% |
-| **Learning** | 13 | 11.3% | 28 | 12 | 61.5% |
-| **Other** | 46 | 40.0% | 18 | 14 | 65.2% |
-| **Project** | 9 | 7.8% | 5 | 10 | 77.8% |
-| **Salary** | 6 | 5.2% | 52 | 30 | 83.3% |
+| **AI/LLM** | 15 | 13.0% | 36.0 | 15.0 | 73.3% |
+| **Advice** | 5 | 4.3% | 22.0 | 22.0 | 40.0% |
+| **Career** | 21 | 18.3% | 47.0 | 33.0 | 61.9% |
+| **Learning** | 13 | 11.3% | 28.0 | 12.0 | 61.5% |
+| **Other** | 46 | 40.0% | 18.5 | 13.5 | 65.2% |
+| **Project** | 9 | 7.8% | 5.0 | 10.0 | 77.8% |
+| **Salary** | 6 | 5.2% | 51.5 | 29.5 | 83.3% |
 
 ## 5. Unsupervised NMF Latent Themes
 - **Topic 1: job, experience, career**: `job, experience, career, getting, masters, feel, role, company`

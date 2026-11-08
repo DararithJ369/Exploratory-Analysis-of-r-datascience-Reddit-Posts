@@ -112,7 +112,7 @@ def export_statistical_report(
         pct = (n / len(df)) * 100
         pos_pct = (group["sentiment_label"].eq("Positive").sum() / n) * 100
         lines.append(
-            f"| **{cat}** | {n} | {pct:.1f}% | {group['score'].median():.0f} | {group['comment_count'].median():.0f} | {pos_pct:.1f}% |"
+            f"| **{cat}** | {n} | {pct:.1f}% | {group['score'].median():.1f} | {group['comment_count'].median():.1f} | {pos_pct:.1f}% |"
         )
 
     lines.extend([

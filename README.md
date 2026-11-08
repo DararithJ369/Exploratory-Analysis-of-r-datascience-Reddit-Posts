@@ -59,7 +59,7 @@ Reddit-DataScience-Scraping&Analysis/
 | **Comment Distribution** | Mean 26.6, Median 17, Skewness 1.91 | Moderate heavy tail; monotonic co-movement with score. |
 | **Score vs Comments** | Spearman $\rho = 0.606$ ($p = 7.33 \times 10^{-13}$) | Moderately strong positive association driven by mutual algorithmic visibility. |
 | **Category Differences** | Kruskal-Wallis $H = 16.46$ ($p = 0.011$) | Significant differences in median engagement across topics (Salary & Career lead). |
-| **Post Age vs Score** | Spearman $\rho = 0.020$ ($p = 0.824$) | No correlation; Reddit 'Hot' ranking half-life plateaus activity within 24-48 hours. |
+| **Post Age vs Score** | Spearman $\rho = 0.018$ ($p = 0.847$) | No correlation; Reddit 'Hot' ranking half-life plateaus activity within 24-48 hours. |
 | **Temporal Peak** | 13:00-18:00 UTC (08:00-13:00 Eastern) | Activity aligns with North American business hours (EDT/EST dynamic handling). |
 
 ---
@@ -113,7 +113,7 @@ Reddit-DataScience-Scraping&Analysis/
 ![Post Age Exposure](img/fig_post_age_exposure.png)
 
 - **What it shows**: Scatter plot of post age in days against total score, accompanied by local trend smoothing.
-- **Interpretation**: Spearman rank correlation between post age and score is near zero ($\rho = 0.020, p = 0.824$). This empirically confirms Reddit's 'Hot' ranking half-life decay: submissions accumulate interaction within 24 to 48 hours of publication, after which scores plateau. Consequently, snapshot comparisons across older posts are not biased by cumulative exposure duration.
+- **Interpretation**: Spearman rank correlation between post age and score is near zero ($\rho = 0.018, p = 0.847$). This empirically confirms Reddit's 'Hot' ranking half-life decay: submissions accumulate interaction within 24 to 48 hours of publication, after which scores plateau. Consequently, snapshot comparisons across older posts are not biased by cumulative exposure duration.
 
 ---
 
@@ -122,7 +122,7 @@ Reddit-DataScience-Scraping&Analysis/
 ![Sentiment by Category](img/fig_sentiment_by_category.png)
 
 - **What it shows**: Distribution of VADER compound sentiment scores across discussion categories, annotated with category sample sizes ($N$).
-- **Interpretation**: The community maintains a predominantly positive-to-neutral tone (66.1% positive, 20.9% neutral, 13.0% negative). Salary discussions display the highest median sentiment (+0.44) due to compensation transparency. Conversely, technical Project posts register lower scores due to lexicon limitations: domain-specific terms such as *error*, *loss*, and *exception* depress rule-based sentiment scores despite emotionally neutral intent.
+- **Interpretation**: The community maintains a predominantly positive-to-neutral tone (66.1% positive, 20.9% neutral, 13.0% negative). Salary discussions display the highest median sentiment (+0.963, 83.3% positive) reflecting compensation optimism. Conversely, Advice discussions record the lowest median sentiment (0.000, 40.0% negative), reflecting anxieties over career transitions and layoffs. Furthermore, technical troubleshooting posts in Career and Other exhibit scores down to -0.836 due to dictionary-based sentiment scoring of terms like *error*, *loss*, and *exception* despite emotionally neutral intent.
 
 ---
 
