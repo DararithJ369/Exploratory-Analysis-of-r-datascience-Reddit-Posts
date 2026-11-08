@@ -20,7 +20,12 @@ import pandas as pd
 
 from src.scraper import scrape_reddit_dataset
 from src.cleaning import clean_reddit_data
-from src.nlp import categorize_posts, compute_sentiment, fit_nmf_topic_model
+from src.nlp import (
+    categorize_posts,
+    compute_sentiment,
+    fit_nmf_topic_model,
+    assign_nmf_topics,
+)
 from src.visualization import generate_all_visualizations
 
 # Set writable matplotlib cache
@@ -76,6 +81,7 @@ def run_pipeline(
     # 5. Unsupervised NMF Topic Modeling
     logger.info("Step 5/6: Fitting NMF Topic Model on post full texts...")
     nmf_model, tfidf_vec, topics = fit_nmf_topic_model(df_sent["full_text"].tolist(), n_topics=5)
+    df_sent = assign_nmf_topics(df_sent, nmf_model, tfidf_vec, topics)
 
     # 6. Save Cleaned Dataset
     out_dir = os.path.dirname(output_clean_csv)

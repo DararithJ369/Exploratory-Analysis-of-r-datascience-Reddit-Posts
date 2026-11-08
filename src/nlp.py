@@ -193,3 +193,51 @@ def fit_nmf_topic_model(
         })
 
     return nmf, tfidf, topics
+
+
+def assign_nmf_topics(
+    df: pd.DataFrame,
+    nmf_model: NMF,
+    tfidf_vec: TfidfVectorizer,
+    topics: List[Dict[str, Any]],
+    text_col: str = "full_text",
+) -> pd.DataFrame:
+    """Projects documents onto latent NMF topic components and assigns dominant topics.
+
+    Args:
+        df: DataFrame containing the text documents.
+        nmf_model: Fitted NMF scikit-learn model.
+        tfidf_vec: Fitted TfidfVectorizer.
+        topics: List of topic metadata dicts containing 'name' and 'topic_id'.
+        text_col: Column name containing document text.
+
+    Returns:
+        DataFrame augmented with 'nmf_topic_id', 'nmf_topic_name', and 'nmf_confidence'.
+    """
+    df = df.copy()
+    texts = df[text_col].fillna("").astype(str).tolist()
+    dtm = tfidf_vec.transform(texts)
+    doc_topic_weights = nmf_model.transform(dtm)
+
+    topic_ids = []
+    topic_names = []
+    confidences = []
+
+    for row in doc_topic_weights:
+        row_sum = row.sum()
+        if row_sum > 0:
+            dominant_idx = int(np.argmax(row))
+            norm_weight = float(row[dominant_idx] / row_sum)
+            t_info = topics[dominant_idx]
+            topic_ids.append(t_info.get("topic_id", dominant_idx + 1))
+            topic_names.append(t_info.get("name", f"Topic {dominant_idx + 1}"))
+            confidences.append(round(norm_weight, 4))
+        else:
+            topic_ids.append(0)
+            topic_names.append("Unassigned")
+            confidences.append(0.0)
+
+    df["nmf_topic_id"] = topic_ids
+    df["nmf_topic_name"] = topic_names
+    df["nmf_confidence"] = confidences
+    return df

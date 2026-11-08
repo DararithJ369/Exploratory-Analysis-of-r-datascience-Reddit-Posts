@@ -23,6 +23,7 @@ from src.nlp import (
     categorize_posts,
     compute_sentiment,
     fit_nmf_topic_model,
+    assign_nmf_topics,
 )
 from src.scraper import scrape_reddit_dataset
 
@@ -221,6 +222,26 @@ class TestNLPAndTopicModeling(unittest.TestCase):
         nmf, tfidf, topics = fit_nmf_topic_model(corpus, n_topics=3)
         self.assertEqual(len(topics), 3)
         self.assertTrue(all("keywords" in t for t in topics))
+
+    def test_assign_nmf_topics(self):
+        """Verifies document projection onto dominant NMF topics."""
+        corpus = [
+            "machine learning models neural networks deep learning",
+            "career transition resume interview job search",
+            "data science compensation salary tech offer",
+        ] * 4
+        nmf, tfidf, topics = fit_nmf_topic_model(corpus, n_topics=3)
+        df_docs = pd.DataFrame([
+            {"post_title": "Deep Learning Models", "full_text": "deep learning neural networks models"},
+            {"post_title": "Empty doc", "full_text": ""},
+        ])
+        assigned = assign_nmf_topics(df_docs, nmf, tfidf, topics)
+        self.assertIn("nmf_topic_id", assigned.columns)
+        self.assertIn("nmf_topic_name", assigned.columns)
+        self.assertIn("nmf_confidence", assigned.columns)
+        self.assertGreater(assigned.loc[0, "nmf_confidence"], 0.0)
+        self.assertEqual(assigned.loc[1, "nmf_topic_id"], 0)
+        self.assertEqual(assigned.loc[1, "nmf_confidence"], 0.0)
 
 
 class TestScraperFallback(unittest.TestCase):
