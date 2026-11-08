@@ -4,184 +4,148 @@
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
 [![UV Fast Installer](https://img.shields.io/badge/uv-Package%20Manager-DE5FE9?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/uv)
-[![Tests Passing](https://img.shields.io/badge/Tests-100%25%20Passing-brightgreen?style=flat)](tests/)
+[![Tests Passing](https://img.shields.io/badge/Tests-21%2F21%20Passing-brightgreen?style=flat)](tests/)
 
-A reproducible, publication-grade Exploratory Data Analysis (EDA) and Web Scraping pipeline examining thematic trends, engagement dynamics, circadian temporal patterns, and sentiment across submissions in the **r/datascience** subreddit (1.5M+ members).
-
-Developed for **PDAS (Python for Data Analysis and Statistics)** — ITC Year 3, Semester 1.
+A reproducible data science pipeline examining submission themes, engagement dynamics, circadian activity, and sentiment across the **r/datascience** subreddit (1.5M+ members). Developed for **PDAS (Python for Data Analysis and Statistics)** at the Institute of Technology of Cambodia (ITC).
 
 ---
 
-## Key Features & Methodological Modernization
+## Quickstart
 
-- **Production-Grade Modular Architecture**: Core data science engine cleanly decoupled into `src/` (`scraper.py`, `cleaning.py`, `nlp.py`, `visualization.py`).
-- **Zero Data Loss Ingestion**: Preserves 100% of organic submissions (including title-only discussions and link posts) rather than discarding empty self-texts.
-- **Word-Boundary Topic Categorization**: Implements strict regex word boundaries (`\b...\b`), eliminating substring false-positive traps (such as the letter `'r'` incorrectly matching words into `Learning`).
-- **Unsupervised NMF Topic Modeling**: Uses Non-Negative Matrix Factorization over TF-IDF n-grams to discover latent community discourse themes without human labeler bias.
-- **Robust Non-Parametric Statistics**: Addresses extreme Pareto/power-law skewness with log transformations (`log1p`), **Spearman's rank correlation** ($\rho$), and Median/IQR dispersion measures.
-- **Dual-Mode Docker Automation**: Single-command headless execution (`docker compose up pipeline`) or interactive browser-based JupyterLab workspace (`docker compose up jupyter`), equipped with deterministic container naming, healthchecks, and volume isolation for pre-baked NLTK corpora.
-- **Ultra-Fast Dependency Management via `uv`**: Pre-configured for Astral's `uv` for 10x–100x faster package installation and container builds.
-- **100% Offline Self-Sufficiency**: NLTK lexicons and datasets are bundled and cached locally, ensuring full reproducibility in sandboxed or offline environments.
+### Docker Automation (Recommended)
+```bash
+docker compose up pipeline   # Headless batch execution (scraping, cleaning, NMF, reports, figures)
+docker compose up jupyter    # Interactive JupyterLab workspace on http://localhost:8888
+docker compose run --rm test # Execute 21-case unit test suite
+```
+
+### Local Execution
+```bash
+make install     # Install dependencies via Astral uv or pip
+make run-cached  # Execute pipeline on baseline dataset (no live scraping)
+make report      # Generate statistical markdown report at data/statistical_report.md
+make test        # Run unit tests
+```
 
 ---
 
-## Repository Architecture
+## Repository Structure
 
 ```
 Reddit-DataScience-Scraping&Analysis/
-├── .github/
-│   └── workflows/
-│       └── ci.yml                  # GitHub Actions automated test & validation workflow
-├── Dockerfile                      # Production Python 3.11 image with Astral UV & pre-baked NLTK
-├── docker-compose.yml              # Services: 'pipeline' (batch execution), 'jupyter' & 'test'
-├── entrypoint.sh                   # Flexible multi-mode container entrypoint
-├── Makefile                        # Convenience targets for execution, test, and container workflows
-├── .dockerignore                   # Build context exclusions (.venv, .git, caches)
-├── requirements.txt                # Pinned production dependencies
-├── pyproject.toml                  # Modern UV / PEP 621 project configuration
-├── main.py                         # End-to-end CLI orchestrator & summary reporter
-├── reddit_datascience_analysis.ipynb # Fully pre-rendered, verified canonical analysis notebook
+├── .github/workflows/ci.yml   # Continuous integration test & validation workflow
+├── Dockerfile                 # Multi-stage Python 3.11 image with Astral uv
+├── docker-compose.yml         # Container services: pipeline, jupyter, and test
+├── Makefile                   # Command shortcuts for test, execution, and cleanup
+├── requirements.txt           # Pinned production dependencies
+├── main.py                    # Pipeline orchestrator and statistical reporter
+├── reddit_datascience_analysis.ipynb # Canonical pre-rendered analysis notebook
 ├── data/
-│   ├── reddit_datascience.csv      # Raw baseline dataset (cached for offline fallback)
-│   └── reddit_datascience_clean.csv# Cleaned & feature-engineered dataset
-├── img/                            # Exported 300 DPI publication figures
-├── src/                            # Modular domain logic
-│   ├── __init__.py
-│   ├── scraper.py                  # Resilient scraper with flairs, upvote ratio & backoff
-│   ├── cleaning.py                 # Outlier handling, text harmonization & feature engineering
-│   ├── nlp.py                      # Word-boundary categorization, VADER sentiment, NMF modeling
-│   └── visualization.py            # High-res Seaborn/Matplotlib chart generators
-├── tests/
-│   ├── __init__.py
-│   └── test_pipeline.py            # Unit tests for categorization, cleaning, and NLP
-└── helper/
-    └── reddit_scraper.py           # Legacy wrapper forwarding to src.scraper
+│   ├── reddit_datascience.csv       # Baseline raw snapshot (cached fallback)
+│   ├── reddit_datascience_clean.csv # Cleaned, feature-engineered dataset
+│   └── statistical_report.md        # Generated analytical summary report
+├── img/                       # Publication-grade figures (300 DPI)
+├── src/                       # Decoupled domain modules (scraper, cleaning, nlp, visualization)
+└── tests/                     # Unit test suite (21 test cases)
 ```
 
 ---
 
-## Quickstart with Docker (Recommended)
+## Key Statistical Findings
 
-Ensure [Docker](https://docs.docker.com/get-docker/) is installed and running.
-
-### 1. Run Automated Headless Pipeline
-Runs scraping (with automatic offline fallback), cleaning, statistical modeling, NMF topic extraction, and exports all figures to `img/`:
-```bash
-docker compose up pipeline
-```
-
-### 2. Launch Interactive JupyterLab
-Spins up a pre-configured JupyterLab workspace on port 8888:
-```bash
-docker compose up jupyter
-```
-Open **[http://localhost:8888](http://localhost:8888)** in your web browser.
-
-### 3. Run Unit Tests Inside Container
-```bash
-docker compose up test
-```
-
----
-
-## Local Setup (Without Docker)
-
-### Option A: Using `uv` (Ultra-Fast)
-```bash
-# Install uv (if not already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Install dependencies into your environment
-uv pip install -r requirements.txt
-
-# Run the complete pipeline
-python main.py
-
-# Launch the analysis notebook
-jupyter lab
-```
-
-### Option B: Using Standard `pip`
-```bash
-pip install -r requirements.txt
-python main.py
-```
-
-### Option C: Using `make` Automation
-```bash
-make install         # Install dependencies via uv or pip
-make test            # Execute unit test suite
-make run-cached      # Run pipeline using cached baseline dataset
-make jupyter         # Start local JupyterLab workspace
-make clean           # Remove temporary cache artifacts
-```
-
----
-
-## Key Scientific Findings & Methodological Rigor
-
-| Research Dimension | Statistical Observation | Methodological Insight |
+| Metric / Dimension | Observation | Statistical Takeaway |
 | :--- | :--- | :--- |
-| **Engagement Distribution** | `Score`: Mean 47.4, Median 33, Skewness 3.62<br>`Comments`: Mean 26.6, Median 17, Skewness 1.91 | Extreme right-skewed heavy tail; normalized effectively via $\log(1 + x)$ transforms. |
-| **Topic Distribution** | `Other`: 40.0%, `Career`: 18.3%, `AI/LLM`: 13.0%, `Learning`: 11.3%, `Project`: 7.8%, `Salary`: 5.2% | Career and Generative AI/LLM applications dominate organic community inquiries. |
-| **Engagement by Topic** | `Salary`: Median 51.5 upvotes, 29.5 comments<br>`Career`: Median 47.0 upvotes, 33.0 comments | Compensation and career transition topics attract the highest interaction per post (both cumulatively and on an age-normalized daily velocity basis). |
-| **Metric Association** | Spearman's $\rho = 0.606$ ($p = 7.33 \times 10^{-13}$) | Moderately strong positive monotonic **association** (not causation): algorithmic front-page exposure and topic resonance drive co-movement. |
-| **Circadian Activity** | Peak window: 13:00 – 18:00 UTC (08:00 – 13:00 Eastern) | Timezone-aware conversion via `zoneinfo` accurately distinguishes **EDT** (UTC-4) and **EST** (UTC-5) across seasonal transitions. |
-| **Post Age & Exposure** | Spearman's $\rho = 0.020$ ($p = 0.824$) | No correlation between post age and score: interaction plateaus within 24–48 hours due to Reddit's exponential 'Hot' ranking half-life decay. |
-| **Latent Topics (NMF)** | 5 distinct clusters discovered: Career, AI Agents, Models/Datasets, Books, and Interviews | Unsupervised clustering provides an essential data-driven cross-validation against rule-based categorization limits. |
+| **Score Distribution** | Mean 47.4, Median 33, Skewness 3.62 | Severe heavy tail; normalized effectively by $\log(1 + x)$. |
+| **Comment Distribution** | Mean 26.6, Median 17, Skewness 1.91 | Moderate heavy tail; monotonic co-movement with score. |
+| **Score vs Comments** | Spearman $\rho = 0.606$ ($p = 7.33 \times 10^{-13}$) | Moderately strong positive association driven by mutual algorithmic visibility. |
+| **Category Differences** | Kruskal-Wallis $H = 16.46$ ($p = 0.011$) | Significant differences in median engagement across topics (Salary & Career lead). |
+| **Post Age vs Score** | Spearman $\rho = 0.020$ ($p = 0.824$) | No correlation; Reddit 'Hot' ranking half-life plateaus activity within 24-48 hours. |
+| **Temporal Peak** | 13:00-18:00 UTC (08:00-13:00 Eastern) | Activity aligns with North American business hours (EDT/EST dynamic handling). |
 
-### Methodological & Statistical Guardrails (Addressing Common Pitfalls)
-1. **Association vs. Causation**: Spearman rank correlation ($\rho = 0.606$) measures monotonic co-movement, not direct causation. Higher scores do not "cause" comments; rather, algorithmic visibility and broadly resonant debate drive both metrics simultaneously.
-2. **Collection Boundaries vs. Pipeline Retention**: We distinguish between retaining 100% of collected organic posts ($N=115$) and total platform coverage. The 7-page snapshot of Reddit's 'Hot' listing represents prominent, survivor-biased discussions rather than an exhaustive longitudinal census.
-3. **Timezone Transitions**: Timestamps are parsed using standard `zoneinfo.ZoneInfo("America/New_York")`, dynamically adjusting for the transition between EDT (UTC-4) and EST (UTC-5) on November 2, 2025.
-4. **Lexicon Sentiment Limitations**: VADER compound scores serve as *indicative lexical polarity estimates*. Technical jargon (*loss function*, *error handling*, *bias variance*) can depress scores in non-emotional technical utilities.
-5. **Post Age & Exposure Control**: In addition to cumulative counts, we compute daily interaction velocity (`score_per_day`) to confirm that category engagement hierarchies are not artifacts of exposure time.
+---
 
-### Empirical Visualizations & Analytic Artifacts
+## Visualizations & Empirical Interpretations
 
-Key figures generated by the modular visualization engine (`src/visualization.py`) and saved to `img/`:
-
-#### 1. Engagement Dynamics & Non-Parametric Distribution
-Log transformation addresses the power-law tail inherent in Reddit submission scoring, confirming Pareto-like community dynamics.
+### 1. Engagement Metric Distributions
 
 ![Engagement Distributions](img/fig_engagement_distributions.png)
 
-#### 2. Thematic Structure & Unsupervised NMF Topics
-Rule-based word-bounded regex categorization cross-validated against unsupervised Non-Negative Matrix Factorization (NMF) topic extraction:
+- **What it shows**: Raw scores and comment counts follow severe right-skewed Pareto/power-law distributions, where a small subset of viral posts captures the majority of interactions.
+- **Interpretation**: Standard parametric statistics (mean, variance) distort central tendency in such data. Applying non-linear $\log(1 + x)$ transforms yields symmetric, approximately unimodal distributions suitable for linear regression modeling and rank-based evaluation.
 
-| Topic Category Distribution | Discovered Latent NMF Themes |
+---
+
+### 2. Topic Category Breakdown & Latent NMF Themes
+
+| Rule-Based Topic Distribution | Unsupervised NMF Latent Topics |
 | :---: | :---: |
 | ![Topic Distribution](img/fig_topic_distribution.png) | ![NMF Topics](img/fig_nmf_topics.png) |
 
-#### 3. Temporal Circadian Rhythm & Metric Association
-Circadian patterns adjusted for Eastern Daylight / Standard Time transitions, alongside monotonic score-comment co-movement:
+- **What it shows**: Left: Word-bounded regex classification shows career transitions (18.3%), AI/LLM tools (13.0%), and learning roadmaps (11.3%) dominate thematic discourse outside generic posts (40.0%). Right: Unsupervised Non-Negative Matrix Factorization (NMF) decomposes full texts into 5 latent themes: (1) career transitions and master's degrees, (2) Python AI agents, (3) model training datasets, (4) book recommendations, and (5) interview preparation.
+- **Interpretation**: Unsupervised clustering cross-validates the rule-based taxonomy, proving that community inquiries focus on career mobility and generative AI tooling without human labeling bias.
 
-| Submission Intensity Heatmap | Monotonic Association Regression |
+---
+
+### 3. Engagement by Topic Category
+
+![Engagement by Category](img/fig_engagement_by_category.png)
+
+- **What it shows**: Median upvotes and comments broken down by discussion category, evaluated on both cumulative counts and post-age-normalized daily velocities.
+- **Interpretation**: Posts concerning Salary (median 51.5 upvotes, 29.5 comments) and Career (median 47.0 upvotes, 33.0 comments) generate substantially higher interaction than technical Project showcases (median 5.0 upvotes, 10.0 comments). The non-parametric Kruskal-Wallis test confirms these differences are statistically significant ($H = 16.46, p = 0.011$ for scores; $H = 16.10, p = 0.013$ for comments).
+
+---
+
+### 4. Circadian Posting Heatmap & Metric Association
+
+| Circadian Submission Intensity | Score vs Comments Association |
 | :---: | :---: |
 | ![Circadian Heatmap](img/fig_circadian_heatmap.png) | ![Score vs Comments Regression](img/fig_score_comments_regression.png) |
 
-#### 4. Post Age Decay & Exposure Control
-Spearman analysis confirms interaction plateauing within 24–48 hours, eliminating age exposure bias:
+- **What it shows**: Left: Submission density mapped across Day of Week $\times$ Hour of Day (UTC and Eastern Time). Right: Scatter plot of log-transformed scores versus comments with an ordinary least squares regression trend line.
+- **Interpretation**:
+  - *Circadian Rhythm*: Posting frequency concentrates on weekdays between 13:00 and 18:00 UTC (08:00 to 13:00 Eastern Time), corresponding to the start of the North American workday. Dynamic timezone handling via `zoneinfo` accurately handles seasonal EDT (UTC-4) and EST (UTC-5) shifts.
+  - *Association vs. Causation*: Spearman rank correlation ($\rho = 0.606, p = 7.33 \times 10^{-13}$) indicates moderate-to-strong positive monotonic association. Upvotes do not cause comments; rather, algorithmic promotion to the subreddit front page exposes resonant discussions to broader audiences, driving both metrics simultaneously.
+
+---
+
+### 5. Post Age & Algorithmic Exposure Decay
 
 ![Post Age Exposure](img/fig_post_age_exposure.png)
 
-#### 5. Domain-Aware Sentiment by Category
-VADER sentiment distribution across thematic categories with explicit sample size reporting:
+- **What it shows**: Scatter plot of post age in days against total score, accompanied by local trend smoothing.
+- **Interpretation**: Spearman rank correlation between post age and score is near zero ($\rho = 0.020, p = 0.824$). This empirically confirms Reddit's 'Hot' ranking half-life decay: submissions accumulate interaction within 24 to 48 hours of publication, after which scores plateau. Consequently, snapshot comparisons across older posts are not biased by cumulative exposure duration.
+
+---
+
+### 6. Domain-Aware Sentiment Distribution by Category
 
 ![Sentiment by Category](img/fig_sentiment_by_category.png)
 
+- **What it shows**: Distribution of VADER compound sentiment scores across discussion categories, annotated with category sample sizes ($N$).
+- **Interpretation**: The community maintains a predominantly positive-to-neutral tone (66.1% positive, 20.9% neutral, 13.0% negative). Salary discussions display the highest median sentiment (+0.44) due to compensation transparency. Conversely, technical Project posts register lower scores due to lexicon limitations: domain-specific terms such as *error*, *loss*, and *exception* depress rule-based sentiment scores despite emotionally neutral intent.
+
 ---
 
-## Unit Testing Suite
+## Methodological Guardrails
 
-The project includes unit tests covering categorization boundary logic, data retention, bot filtering, daylight saving time handling, sentiment analysis, and scraper fallbacks:
+1. **Association vs. Causation**: Co-movement between scores and comments reflects algorithmic amplification and topic resonance rather than direct causation.
+2. **Pipeline Retention vs. Platform Coverage**: The dataset captures 100% of organic posts within the scraped sample ($N=115$), preserving title-only posts without claiming platform-wide historical completeness.
+3. **Dynamic Timezone Harmonization**: Standard `zoneinfo.ZoneInfo("America/New_York")` converts timestamps dynamically, correctly differentiating Eastern Daylight Time (EDT) and Eastern Standard Time (EST).
+4. **Lexical Sentiment Caveats**: VADER polarity is treated as a heuristic lexical estimate, acknowledging that technical terminology artificially skews domain scores negative.
+5. **Exposure Control**: Daily interaction velocities (`score_per_day`, `comments_per_day`) corroborate raw counts, proving engagement hierarchies are not artifacts of post age.
+
+---
+
+## Unit Testing
+
+The repository contains 21 unit test cases covering regex boundaries, HTML entity unescaping, zero-data-loss cleaning, bot filtering, daylight saving transitions, NMF topic projection, Kruskal-Wallis tests, and report generation:
 ```bash
 python -m unittest discover tests -v
 ```
-All 10 test cases run in `< 0.05s` with 100% pass rate.
+All 21 test cases execute in `< 0.1s` with a 100% pass rate.
 
 ---
 
-## Academic Context & Ethical Disclosure
+## Academic Context
 
-This project was conducted for educational and exploratory research as part of the **PDAS** curriculum at the **Institute of Technology of Cambodia (ITC)**. All data was collected in compliance with standard research web-scraping practices and is subject to Reddit's Terms of Service and community guidelines.
+Conducted for educational research as part of the **PDAS** curriculum at the **Institute of Technology of Cambodia (ITC)**. All data was collected via public Reddit endpoints in accordance with academic fair use.
