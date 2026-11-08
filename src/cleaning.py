@@ -9,6 +9,8 @@ Adheres to rigorous data science principles:
 - Non-linear log transformations for heavy-tailed power-law counts
 """
 
+import html
+import re
 import logging
 from typing import Tuple, Optional
 from zoneinfo import ZoneInfo
@@ -19,6 +21,48 @@ logger = logging.getLogger(__name__)
 
 # Eastern Timezone for North American tech discourse alignment
 EASTERN_TZ = ZoneInfo("America/New_York")
+
+# Pattern for zero-width and invisible formatting characters common in web text
+ZERO_WIDTH_PATTERN = re.compile(r"[\u200b\u200c\u200d\u200e\u200f\ufeff]")
+
+
+def normalize_text(text: Optional[str]) -> str:
+    """Decodes HTML entities, removes zero-width characters, and normalizes spacing.
+
+    Args:
+        text: Raw input text string.
+
+    Returns:
+        Cleaned, unescaped string.
+    """
+    if text is None or pd.isna(text):
+        return ""
+    cleaned = html.unescape(str(text))
+    cleaned = ZERO_WIDTH_PATTERN.sub("", cleaned)
+    cleaned = re.sub(r"[ \t]+", " ", cleaned).strip()
+    return cleaned
+
+
+def detect_iqr_outliers(
+    series: pd.Series, factor: float = 1.5
+) -> Tuple[pd.Series, float, float]:
+    """Detects outliers using Tukey's fences (Interquartile Range method).
+
+    Args:
+        series: Numeric pandas Series.
+        factor: Multiplier for IQR (standard is 1.5 for outliers, 3.0 for extreme outliers).
+
+    Returns:
+        Tuple of (boolean Series indicating outliers, lower fence, upper fence).
+    """
+    s = pd.to_numeric(series, errors="coerce").fillna(0)
+    q1 = s.quantile(0.25)
+    q3 = s.quantile(0.75)
+    iqr = q3 - q1
+    lower_fence = q1 - (factor * iqr)
+    upper_fence = q3 + (factor * iqr)
+    outlier_mask = (s < lower_fence) | (s > upper_fence)
+    return outlier_mask, float(lower_fence), float(upper_fence)
 
 
 def clean_reddit_data(
@@ -42,10 +86,11 @@ def clean_reddit_data(
     initial_count = len(df)
     df = df.copy()
 
-    # 1. Drop records lacking essential identifier or title
+    # 1. Drop records lacking essential identifier or title, and normalize title text
     df = df.dropna(subset=["post_title"]).reset_index(drop=True)
     if "post_id" in df.columns:
         df = df.drop_duplicates(subset=["post_id"]).reset_index(drop=True)
+    df["post_title"] = df["post_title"].apply(normalize_text)
 
     # 2. Filter system / bot accounts (non-organic discussion)
     if remove_bots and "author" in df.columns:
@@ -60,8 +105,8 @@ def clean_reddit_data(
     # not an exhaustive census of all historical Reddit submissions.
     if "body" not in df.columns:
         df["body"] = ""
-    df["has_body"] = df["body"].notna() & (df["body"].astype(str).str.strip() != "")
-    df["body_clean"] = df["body"].fillna("").astype(str).str.strip()
+    df["body_clean"] = df["body"].apply(normalize_text)
+    df["has_body"] = df["body_clean"] != ""
 
     # 4. Create unified text representation for NLP/sentiment
     df["full_text"] = np.where(
@@ -92,7 +137,7 @@ def clean_reddit_data(
         df["is_weekend"] = df["day_of_week"].isin([5, 6])
         df["year_month"] = df["created_utc"].dt.strftime("%Y-%m")
 
-    # 6. Engagement features & log-transforms (addressing skewness)
+    # 6. Engagement features, log-transforms, and Tukey IQR outlier detection
     if "score" in df.columns:
         df["score"] = pd.to_numeric(df["score"], errors="coerce").fillna(0).astype(int)
     else:
@@ -105,6 +150,12 @@ def clean_reddit_data(
     df["log_score"] = np.log1p(np.maximum(df["score"], 0))
     df["log_comment_count"] = np.log1p(np.maximum(df["comment_count"], 0))
     df["comments_per_score"] = df["comment_count"] / (df["score"] + 1.0)
+
+    # Tukey IQR Outlier Detection (factor 1.5)
+    score_outliers, _, _ = detect_iqr_outliers(df["score"])
+    comment_outliers, _, _ = detect_iqr_outliers(df["comment_count"])
+    df["is_score_outlier"] = score_outliers
+    df["is_comment_outlier"] = comment_outliers
 
     # 7. Post Age & Exposure-Normalized Engagement Velocity
     if "created_utc" in df.columns:

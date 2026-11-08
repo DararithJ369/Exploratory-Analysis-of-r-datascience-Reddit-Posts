@@ -13,7 +13,11 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from src.cleaning import clean_reddit_data
+from src.cleaning import (
+    clean_reddit_data,
+    normalize_text,
+    detect_iqr_outliers,
+)
 from src.nlp import (
     categorize_title,
     categorize_posts,
@@ -157,6 +161,29 @@ class TestDataCleaning(unittest.TestCase):
         self.assertLess(cleaned["post_age_days"].values[0], 0.01)
         # Denominator clamped to minimum 0.25 days -> velocity should be 10 / 0.25 = 40
         self.assertAlmostEqual(cleaned["score_per_day"].values[0], 40.0)
+
+    def test_text_normalization_html_and_zero_width(self):
+        """Verifies HTML entity decoding and invisible character removal."""
+        raw_text = "Data&#39;s &amp; AI &lt;models&gt; \u200b\ufeffare   great!"
+        cleaned = normalize_text(raw_text)
+        self.assertEqual(cleaned, "Data's & AI <models> are great!")
+
+    def test_iqr_outlier_detection(self):
+        """Verifies Tukey IQR outlier detection bounds and flagging."""
+        # Baseline series: [10, 12, 14, 15, 16, 18, 20], with extreme outlier 200
+        data = pd.Series([10, 12, 14, 15, 16, 18, 20, 200])
+        outliers, lower, upper = detect_iqr_outliers(data, factor=1.5)
+        self.assertTrue(outliers.iloc[-1])
+        self.assertFalse(outliers.iloc[0])
+        self.assertGreater(upper, 20)
+        self.assertLess(upper, 200)
+
+    def test_clean_data_outlier_flags(self):
+        """Verifies outlier indicator columns exist in output dataframe."""
+        cleaned = clean_reddit_data(self.sample_df, remove_bots=False)
+        self.assertIn("is_score_outlier", cleaned.columns)
+        self.assertIn("is_comment_outlier", cleaned.columns)
+        self.assertEqual(cleaned["is_score_outlier"].dtype, bool)
 
 
 class TestNLPAndTopicModeling(unittest.TestCase):
