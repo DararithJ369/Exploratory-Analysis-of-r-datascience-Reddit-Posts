@@ -9,6 +9,8 @@ Tests:
 6. Graceful scraper fallback
 """
 
+import os
+import tempfile
 import unittest
 import numpy as np
 import pandas as pd
@@ -26,6 +28,7 @@ from src.nlp import (
     assign_nmf_topics,
 )
 from src.scraper import scrape_reddit_dataset
+from main import compute_kruskal_tests, export_statistical_report
 
 
 class TestCategorization(unittest.TestCase):
@@ -270,6 +273,48 @@ class TestScraperFallback(unittest.TestCase):
         except (ValueError, TypeError):
             score_val = 0
         self.assertEqual(score_val, 0)
+
+
+class TestStatisticalReporting(unittest.TestCase):
+    """Test non-parametric hypothesis testing and report generation."""
+
+    def setUp(self):
+        self.df = pd.DataFrame([
+            {"category": "Career", "score": 50, "comment_count": 30, "created_utc": pd.Timestamp("2026-01-10T12:00:00Z"), "sentiment_label": "Positive", "is_score_outlier": False, "is_comment_outlier": False},
+            {"category": "Career", "score": 40, "comment_count": 25, "created_utc": pd.Timestamp("2026-01-10T13:00:00Z"), "sentiment_label": "Neutral", "is_score_outlier": False, "is_comment_outlier": False},
+            {"category": "Salary", "score": 80, "comment_count": 45, "created_utc": pd.Timestamp("2026-01-10T14:00:00Z"), "sentiment_label": "Positive", "is_score_outlier": True, "is_comment_outlier": False},
+            {"category": "Salary", "score": 90, "comment_count": 55, "created_utc": pd.Timestamp("2026-01-10T15:00:00Z"), "sentiment_label": "Negative", "is_score_outlier": True, "is_comment_outlier": True},
+        ])
+        self.topics = [
+            {"topic_id": 1, "name": "Topic 1: career, jobs", "keywords": ["career", "jobs", "hiring"]},
+            {"topic_id": 2, "name": "Topic 2: salary, compensation", "keywords": ["salary", "comp", "offer"]},
+        ]
+
+    def test_kruskal_tests(self):
+        """Verifies Kruskal-Wallis H-test calculation across categories."""
+        res = compute_kruskal_tests(self.df)
+        self.assertIn("score", res)
+        self.assertIn("comment_count", res)
+        self.assertIsInstance(res["score"][0], float)
+        self.assertGreaterEqual(res["score"][1], 0.0)
+        self.assertLessEqual(res["score"][1], 1.0)
+
+    def test_export_statistical_report(self):
+        """Verifies generation of structured Markdown report."""
+        with tempfile.NamedTemporaryFile(suffix=".md", delete=False) as tmp:
+            tmp_path = tmp.name
+
+        try:
+            export_statistical_report(self.df, self.topics, output_path=tmp_path)
+            self.assertTrue(os.path.exists(tmp_path))
+            with open(tmp_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            self.assertIn("# Statistical & Methodological Analysis Report", content)
+            self.assertIn("Kruskal-Wallis", content)
+            self.assertIn("Spearman Rank Correlation", content)
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
 
 if __name__ == "__main__":

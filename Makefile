@@ -1,4 +1,4 @@
-.PHONY: help install test run run-cached jupyter docker-build docker-pipeline docker-jupyter docker-test clean
+.PHONY: help install test run run-cached report jupyter docker-build docker-pipeline docker-jupyter docker-test clean
 
 PYTHON ?= python3
 UV ?= $(shell command -v uv 2>/dev/null)
@@ -9,6 +9,7 @@ help:
 	@echo "  make test            Run unit test suite"
 	@echo "  make run             Execute full analysis pipeline (with scraping fallback)"
 	@echo "  make run-cached      Execute pipeline using cached dataset (no scraping)"
+	@echo "  make report          Generate academic statistical markdown report"
 	@echo "  make jupyter         Launch interactive JupyterLab on port 8888"
 	@echo "  make docker-build    Build Docker container images"
 	@echo "  make docker-pipeline Run pipeline inside Docker container"
@@ -31,6 +32,9 @@ run:
 
 run-cached:
 	$(PYTHON) main.py --no-scrape
+
+report:
+	$(PYTHON) main.py --no-scrape --report data/statistical_report.md
 
 jupyter:
 	jupyter lab --port 8888
