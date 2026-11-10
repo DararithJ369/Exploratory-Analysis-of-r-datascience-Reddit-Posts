@@ -317,6 +317,30 @@ class TestStatisticalReporting(unittest.TestCase):
                 os.remove(tmp_path)
 
 
+class TestPackageInterface(unittest.TestCase):
+    """Test top-level package namespace exports and public API structure."""
+
+    def test_top_level_exports(self):
+        """Verifies primary public API functions are importable from root src package."""
+        import src
+        expected_symbols = [
+            "clean_reddit_data",
+            "normalize_text",
+            "detect_iqr_outliers",
+            "categorize_title",
+            "categorize_posts",
+            "compute_sentiment",
+            "fit_nmf_topic_model",
+            "assign_nmf_topics",
+            "scrape_reddit_dataset",
+            "generate_all_visualizations",
+        ]
+        for symbol in expected_symbols:
+            self.assertTrue(hasattr(src, symbol), f"src missing exported symbol: {symbol}")
+            self.assertIn(symbol, src.__all__)
+
+
 if __name__ == "__main__":
     unittest.main()
+
 
