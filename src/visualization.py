@@ -13,6 +13,9 @@ Exports figures to `img/` at 300 DPI with rigorous statistical annotations:
 """
 
 import os
+# Ensure writable matplotlib cache in constrained environments prior to module import
+os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
+
 import logging
 from typing import List, Dict, Any, Optional
 import numpy as np
@@ -25,9 +28,6 @@ from scipy import stats
 from wordcloud import WordCloud
 
 logger = logging.getLogger(__name__)
-
-# Ensure writable matplotlib cache in constrained environments
-os.environ.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
 
 # Global aesthetic styling
 sns.set_theme(style="whitegrid", font_scale=1.1)
@@ -343,3 +343,42 @@ def generate_all_visualizations(
         plot_nmf_topics(nmf_topics, os.path.join(output_dir, "fig_nmf_topics.png"))
 
     logger.info("All visualizations successfully generated.")
+
+
+def main() -> None:
+    """CLI entrypoint to generate all figures from a processed dataset."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Regenerate publication-grade figures from cleaned Reddit dataset."
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="data/reddit_datascience_clean.csv",
+        help="Path to cleaned CSV dataset (default: data/reddit_datascience_clean.csv)",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="img",
+        help="Directory to output figure images (default: img)",
+    )
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+
+    if not os.path.exists(args.input):
+        logger.error("Input dataset not found: %s", args.input)
+        raise SystemExit(1)
+
+    df = pd.read_csv(args.input)
+    if "created_utc" in df.columns:
+        df["created_utc"] = pd.to_datetime(df["created_utc"], utc=True)
+
+    generate_all_visualizations(df, output_dir=args.output_dir)
+
+
+if __name__ == "__main__":
+    main()
+
