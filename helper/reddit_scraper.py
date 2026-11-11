@@ -15,8 +15,15 @@ from src.scraper import (
     scrape_reddit_dataset as scrape_reddit_full,
 )
 
+__all__ = [
+    "scrape_listing",
+    "scrape_body",
+    "scrape_reddit_full",
+    "main",
+]
 
-def main():
+
+def main() -> None:
     import argparse
     parser = argparse.ArgumentParser(description="Legacy Reddit scraper entrypoint")
     parser.add_argument("--pages", type=int, default=5, help="Number of pages to scrape")

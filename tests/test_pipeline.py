@@ -340,6 +340,20 @@ class TestPackageInterface(unittest.TestCase):
             self.assertIn(symbol, src.__all__)
 
 
+class TestLegacyScraperHelper(unittest.TestCase):
+    """Test legacy helper backwards-compatibility wrapper."""
+
+    def test_legacy_helper_exports(self):
+        """Verifies helper package and module re-export compatibility functions."""
+        import helper
+        import helper.reddit_scraper
+
+        for symbol in ["scrape_listing", "scrape_body", "scrape_reddit_full"]:
+            self.assertTrue(hasattr(helper, symbol), f"helper missing {symbol}")
+            self.assertTrue(hasattr(helper.reddit_scraper, symbol), f"helper.reddit_scraper missing {symbol}")
+            self.assertTrue(callable(getattr(helper, symbol)))
+
+
 if __name__ == "__main__":
     unittest.main()
 
