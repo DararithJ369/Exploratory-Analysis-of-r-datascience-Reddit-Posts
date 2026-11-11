@@ -51,8 +51,12 @@ def compute_kruskal_tests(df: pd.DataFrame, group_col: str = "category") -> dict
     for metric in ["score", "comment_count"]:
         samples = [group[metric].values for group in valid_groups]
         if len(samples) >= 2:
-            h_stat, p_val = stats.kruskal(*samples)
-            results[metric] = (float(h_stat), float(p_val))
+            try:
+                h_stat, p_val = stats.kruskal(*samples)
+                results[metric] = (float(h_stat), float(p_val))
+            except ValueError:
+                # Handle degenerate case where all observations across groups are identical
+                results[metric] = (0.0, 1.0)
         else:
             results[metric] = (0.0, 1.0)
     return results

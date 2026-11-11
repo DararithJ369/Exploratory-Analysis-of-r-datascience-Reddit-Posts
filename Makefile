@@ -1,4 +1,4 @@
-.PHONY: help install test run run-cached report img jupyter docker-build docker-pipeline docker-jupyter docker-test clean
+.PHONY: help install test check run run-cached report img jupyter docker-build docker-pipeline docker-jupyter docker-test clean
 
 PYTHON ?= python3
 UV ?= $(shell command -v uv 2>/dev/null)
@@ -7,6 +7,7 @@ help:
 	@echo "Available commands:"
 	@echo "  make install         Install project dependencies via uv or pip"
 	@echo "  make test            Run unit test suite"
+	@echo "  make check           Compile check modules and run test suite"
 	@echo "  make run             Execute full analysis pipeline (with scraping fallback)"
 	@echo "  make run-cached      Execute pipeline using cached dataset (no scraping)"
 	@echo "  make report          Generate academic statistical markdown report"
@@ -26,6 +27,10 @@ else
 endif
 
 test:
+	$(PYTHON) -m unittest discover tests -v
+
+check:
+	$(PYTHON) -m py_compile main.py src/*.py helper/*.py tests/*.py
 	$(PYTHON) -m unittest discover tests -v
 
 run:

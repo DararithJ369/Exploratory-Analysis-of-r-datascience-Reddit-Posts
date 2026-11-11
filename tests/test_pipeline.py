@@ -299,6 +299,18 @@ class TestStatisticalReporting(unittest.TestCase):
         self.assertGreaterEqual(res["score"][1], 0.0)
         self.assertLessEqual(res["score"][1], 1.0)
 
+    def test_kruskal_tests_identical_values(self):
+        """Verifies Kruskal-Wallis gracefully handles identical values across groups without raising."""
+        df_identical = pd.DataFrame([
+            {"category": "Career", "score": 10, "comment_count": 5},
+            {"category": "Career", "score": 10, "comment_count": 5},
+            {"category": "Salary", "score": 10, "comment_count": 5},
+            {"category": "Salary", "score": 10, "comment_count": 5},
+        ])
+        res = compute_kruskal_tests(df_identical)
+        self.assertEqual(res["score"], (0.0, 1.0))
+        self.assertEqual(res["comment_count"], (0.0, 1.0))
+
     def test_export_statistical_report(self):
         """Verifies generation of structured Markdown report."""
         with tempfile.NamedTemporaryFile(suffix=".md", delete=False) as tmp:
