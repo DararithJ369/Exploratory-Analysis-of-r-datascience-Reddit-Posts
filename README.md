@@ -18,7 +18,8 @@ docker compose run --rm test # Run automated unit test suite
 make install     # Install dependencies via Astral uv or pip
 make run-cached  # Execute pipeline on baseline dataset (no live scraping)
 make report      # Generate statistical markdown report at data/statistical_report.md
-make test        # Run unit tests
+make img         # Regenerate publication-grade figures into img/
+make check       # Verify syntax compilation and run test suite
 ```
 
 ---
@@ -38,6 +39,7 @@ Reddit-DataScience-Scraping&Analysis/
 │   ├── reddit_datascience.csv       # Baseline raw snapshot (cached fallback)
 │   ├── reddit_datascience_clean.csv # Cleaned, feature-engineered dataset
 │   └── statistical_report.md        # Generated analytical summary report
+├── helper/                    # Backward-compatibility wrapper modules
 ├── img/                       # Publication-grade figures (300 DPI)
 ├── src/                       # Decoupled domain modules (scraper, cleaning, nlp, visualization)
 └── tests/                     # Automated unit test suite
@@ -127,6 +129,7 @@ Reddit-DataScience-Scraping&Analysis/
 3. **Dynamic Timezone Harmonization**: Standard `zoneinfo.ZoneInfo("America/New_York")` converts timestamps dynamically, correctly differentiating Eastern Daylight Time (EDT) and Eastern Standard Time (EST).
 4. **Lexical Sentiment Caveats**: VADER polarity is treated as a heuristic lexical estimate, acknowledging that technical terminology artificially skews domain scores negative.
 5. **Exposure Control**: Daily interaction velocities (`score_per_day`, `comments_per_day`) corroborate raw counts, proving engagement hierarchies are not artifacts of post age.
+6. **Non-Parametric Robustness**: Heavy-tailed engagement metrics are evaluated using medians, Interquartile Range (IQR), Tukey outlier fences, and Kruskal-Wallis non-parametric analysis to prevent distributional distortion.
 
 ---
 
