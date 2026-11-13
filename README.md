@@ -1,11 +1,5 @@
 # Exploratory Analysis & Scraping of r/datascience Reddit Posts
 
-[![CI](https://github.com/DararithJ369/Exploratory-Analysis-of-r-datascience-Reddit-Posts/actions/workflows/ci.yml/badge.svg)](https://github.com/DararithJ369/Exploratory-Analysis-of-r-datascience-Reddit-Posts/actions)
-[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
-[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
-[![UV Fast Installer](https://img.shields.io/badge/uv-Package%20Manager-DE5FE9?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/uv)
-[![Tests Passing](https://img.shields.io/badge/Tests-21%2F21%20Passing-brightgreen?style=flat)](tests/)
-
 A reproducible data science pipeline examining submission themes, engagement dynamics, circadian activity, and sentiment across the **r/datascience** subreddit (1.5M+ members). Developed for **PDAS (Python for Data Analysis and Statistics)** at the Institute of Technology of Cambodia (ITC).
 
 ---
@@ -16,7 +10,7 @@ A reproducible data science pipeline examining submission themes, engagement dyn
 ```bash
 docker compose up pipeline   # Headless batch execution (scraping, cleaning, NMF, reports, figures)
 docker compose up jupyter    # Interactive JupyterLab workspace on http://localhost:8888
-docker compose run --rm test # Execute 21-case unit test suite
+docker compose run --rm test # Run automated unit test suite
 ```
 
 ### Local Execution
@@ -46,7 +40,7 @@ Reddit-DataScience-Scraping&Analysis/
 │   └── statistical_report.md        # Generated analytical summary report
 ├── img/                       # Publication-grade figures (300 DPI)
 ├── src/                       # Decoupled domain modules (scraper, cleaning, nlp, visualization)
-└── tests/                     # Unit test suite (21 test cases)
+└── tests/                     # Automated unit test suite
 ```
 
 ---
@@ -136,13 +130,17 @@ Reddit-DataScience-Scraping&Analysis/
 
 ---
 
-## Unit Testing
+## Automated Testing
 
-The repository contains 21 unit test cases covering regex boundaries, HTML entity unescaping, zero-data-loss cleaning, bot filtering, daylight saving transitions, NMF topic projection, Kruskal-Wallis tests, and report generation:
+The unit test suite covers regex boundaries, text normalization, zero-data-loss cleaning, bot filtering, daylight-saving transitions, NMF topic projection, and statistical reporting:
+```bash
+make test
+```
+Execution can also be run directly via Python or Docker:
 ```bash
 python -m unittest discover tests -v
+make docker-test
 ```
-All 21 test cases execute in `< 0.1s` with a 100% pass rate.
 
 ---
 
